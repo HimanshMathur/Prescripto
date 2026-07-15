@@ -1,24 +1,34 @@
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
-//admin authentication 
+const authAdmin = async (req, res, next) => {
+  try {
+    const { atoken } = req.headers;
 
-const authAdmin = async(req,resp,next)=>{
-    try{
-        const {atoken} = req.headers;
-        if (!atoken){
-            return res.json({sucess:false,message:"Token Not Found"})
-        }
-        const token_decode = jwt.verify(atoken,process.env.JWT_SECRET);
-        
-        if (token_decode!= process.env.ADMIN_EMAIL+process.env.ADMIN_PASSWORD){
-            return res.json({sucess:false,message:"Invalid Token"})
-        }
-        next();
+    if (!atoken) {
+      return res.json({
+        success: false,
+        message: "Token Not Found",
+      });
     }
-    catch(error){
-        console.log(error);
-        resp.json({sucess:false,message:"Something Went Wrong"})
+
+    const decoded = jwt.verify(atoken, process.env.JWT_SECRET);
+
+    if (decoded.email !== process.env.ADMIN_EMAIL) {
+      return res.json({
+        success: false,
+        message: "Invalid Token",
+      });
     }
-}
+
+    next();
+  } catch (error) {
+    console.log(error);
+
+    return res.json({
+      success: false,
+      message: "Invalid Token",
+    });
+  }
+};
 
 export default authAdmin;

@@ -10,6 +10,7 @@ const AdminContextProvider = (props) =>{
         aToken,setAToken,
         backendUrl
     }
+    console.log(aToken);
     console.log(import.meta.env.VITE_BACKEND_URL);
 
     return (

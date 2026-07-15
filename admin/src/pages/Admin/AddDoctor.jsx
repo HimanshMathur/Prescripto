@@ -4,45 +4,80 @@ import { useState } from "react";
 import { useContext } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { toast } from "react-toastify";
-
+import axios from "axios";
 
 const AddDoctor = () => {
   const [docImg, setDocImage] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [experiance, setExperiance] = useState('1 Year');
+  const [experiance, setExperiance] = useState("1 year");
   const [fees, setFees] = useState("");
-  const [speciality, setSpeciality] = useState("Select speciality");
+  const [speciality, setSpeciality] = useState("General physician");
   const [education, setEducation] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [about, setAbout] = useState("");
-  const [degree, setDegree] = useState("");
-  
-  const {backendUrl,aToken} = useContext(AdminContext)
 
-  const onSubmitHandler = async(e) => {
+  const { backendUrl, aToken } = useContext(AdminContext);
+
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
-    try{
-        if (!docImg){
-            return toast.error("Add Image");
-        }
-        else{
-            return toast.success("Success");
-        }
-        const formData = new FormData();
-        formData.append("docImg", docImg);
+    try {
+      if (!docImg) {
+        return toast.error("Please upload doctor image");
+      }
+      const formData = new FormData();
 
+      formData.append("docImg", docImg);
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("experiance", experiance);
+      formData.append("fees", Number(fees));
+      formData.append("about", about);
+      formData.append("speciality", speciality);
+      formData.append("degree", education);
+      formData.append(
+        "address",
+        JSON.stringify({ line1: address1, line2: address2 }),
+      );
+
+      formData.forEach((value, key) => {
+        console.log(`${key} : ${value}`);
+      });
+
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/add-doctor",
+        formData,
+        { headers: { aToken } },
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        setName("");
+        setEmail("");
+        setPassword("");
+        setExperiance("1 year");
+        setFees("");
+        setSpeciality("General physician");
+        setEducation("");
+        setAddress1("");
+        setAddress2("");
+        setAbout("");
+        setDocImage(false);
+      } else {
+        console.log(data.message);
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || error.message);
     }
-    catch(error){
-
-    }
-  }
-
+  };
 
   return (
-    <form onSubmit = {onSubmitHandler} className="m-5 w-full" action="">
+    <form onSubmit={onSubmitHandler} className="m-5 w-full" action="">
       <p className="mb-3 text-lg font-medium">Add Doctor</p>
 
       <div className="bg-white px-8 py-8 border rounded w-full max-w-4xl max-h-[80vh] overflow-y-scroll no-scrollbar">
@@ -50,11 +85,16 @@ const AddDoctor = () => {
           <label htmlFor="doc-img">
             <img
               className="w-16 bg-gray-100 rounded-full cursor-pointer"
-              src={docImg ? URL.createObjectURL(docImg) :assets.upload_area}
+              src={docImg ? URL.createObjectURL(docImg) : assets.upload_area}
               alt=""
             />
           </label>
-          <input onChange = {(e) => setDocImage(e.target.files[0])}  type="file" id="doc-img" hidden />
+          <input
+            onChange={(e) => setDocImage(e.target.files[0])}
+            type="file"
+            id="doc-img"
+            hidden
+          />
           <p>Upload Image</p>
         </div>
 
@@ -64,8 +104,8 @@ const AddDoctor = () => {
               <p>Doctor Name</p>
               <input
                 className="border rounded px-3 py-2"
-                onChange = {(e) => setName(e.target.value)}
-                value = {name}
+                onChange={(e) => setName(e.target.value)}
+                value={name}
                 type="text"
                 placeholder="Name"
                 required
@@ -76,9 +116,9 @@ const AddDoctor = () => {
               <p>Doctor Email</p>
               <input
                 className="border rounded px-3 py-2"
-                onChange = {(e) => setEmail(e.target.value)}
-                value = {email}
-                type="Email"
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+                type="email"
                 placeholder="Email"
                 required
               />
@@ -88,8 +128,8 @@ const AddDoctor = () => {
               <p>Doctor Password</p>
               <input
                 className="border rounded px-3 py-2"
-                onChange = {(e) => setPassword(e.target.value)}
-                value = {password}
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
                 type="password"
                 placeholder="Password"
                 required
@@ -98,7 +138,13 @@ const AddDoctor = () => {
 
             <div className="flex-1 flex flex-col gap-1">
               <p>Experiance</p>
-              <select onChange = {(e) => setExperiance(e.target.value)} value = {experiance}className="border rounded px-3 py-2" name="" id="">
+              <select
+                onChange={(e) => setExperiance(e.target.value)}
+                value={experiance}
+                className="border rounded px-3 py-2"
+                name=""
+                id=""
+              >
                 <option value="1 year">1 year</option>
                 <option value="2 year">2 year</option>
                 <option value="3 year">3 year</option>
@@ -116,8 +162,8 @@ const AddDoctor = () => {
               <p>Fee</p>
               <input
                 className="border rounded px-3 py-2"
-                onChange = {(e) => setFees(e.target.value)}
-                value = {fees}
+                onChange={(e) => setFees(e.target.value)}
+                value={fees}
                 type="number"
                 placeholder="fees"
                 required
@@ -128,7 +174,13 @@ const AddDoctor = () => {
           <div className="w-full lg:flex-1 flex flex-col gap-4">
             <div className="flex-1 flex flex-col gap-1">
               <p>Speciality</p>
-              <select onChange = {(e) => setSpeciality(e.target.value)} value = {speciality} className="border rounded px-3 py-2" name="" id="">
+              <select
+                onChange={(e) => setSpeciality(e.target.value)}
+                value={speciality}
+                className="border rounded px-3 py-2"
+                name=""
+                id=""
+              >
                 <option value="General physician">General physician</option>
                 <option value="Gynecologist">Gynecologist</option>
                 <option value="Dermatologist">Dermatologist</option>
@@ -142,8 +194,8 @@ const AddDoctor = () => {
               <p>Education</p>
               <input
                 className="border rounded px-3 py-2"
-                onChange = {(e) => setEducation(e.target.value)}
-                value = {education}
+                onChange={(e) => setEducation(e.target.value)}
+                value={education}
                 type="text"
                 placeholder="Education"
                 required
@@ -154,16 +206,16 @@ const AddDoctor = () => {
               <p>Address</p>
               <input
                 className="border rounded px-3 py-2"
-                onChange = {(e) => setAddress1(e.target.value)}
-                value = {address1}
+                onChange={(e) => setAddress1(e.target.value)}
+                value={address1}
                 type="text"
                 placeholder="Address 1"
                 required
               />
               <input
                 className="border rounded px-3 py-2"
-                onChange = {(e) => setAddress2(e.target.value)}
-                value = {address2}
+                onChange={(e) => setAddress2(e.target.value)}
+                value={address2}
                 type="text"
                 placeholder="Address 2"
                 required
@@ -175,14 +227,17 @@ const AddDoctor = () => {
           <p className="mt-4 mb-2">About Doctor</p>
           <textarea
             className="w-full px-4 pt-2 border rounded"
-            onChange = {(e) => setAbout(e.target.value)}
-            value = {about}
+            onChange={(e) => setAbout(e.target.value)}
+            value={about}
             placeholder="write about doctor"
             rows={5}
             required
           />
         </div>
-        <button type = "submit" className="bg-primary px-10 py-3 mt-4 text-white rounded-full">
+        <button
+          type="submit"
+          className="bg-primary px-10 py-3 mt-4 text-white rounded-full"
+        >
           Add Doctor
         </button>
       </div>
