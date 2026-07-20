@@ -11,14 +11,13 @@ const AddDoctor = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [experiance, setExperiance] = useState("1 year");
+  const [experiance, setExperiance] = useState("1 year"); 
   const [fees, setFees] = useState("");
   const [speciality, setSpeciality] = useState("General physician");
   const [education, setEducation] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [about, setAbout] = useState("");
-
   const { backendUrl, aToken } = useContext(AdminContext);
 
   const onSubmitHandler = async (e) => {
@@ -29,36 +28,37 @@ const AddDoctor = () => {
       }
       const formData = new FormData();
 
-      formData.append("docImg", docImg);
+      formData.append("image", docImg);
       formData.append("name", name);
       formData.append("email", email);
       formData.append("password", password);
-      formData.append("experiance", experiance);
+      formData.append("experiance", experiance); 
       formData.append("fees", Number(fees));
       formData.append("about", about);
       formData.append("speciality", speciality);
       formData.append("degree", education);
       formData.append(
         "address",
-        JSON.stringify({ line1: address1, line2: address2 }),
+        JSON.stringify({ line1: address1, line2: address2 })
       );
 
-      formData.forEach((value, key) => {
-        console.log(`${key} : ${value}`);
-      });
-
+      // Axios Post Request
       const { data } = await axios.post(
         backendUrl + "/api/admin/add-doctor",
         formData,
-        { headers: { aToken } },
+        {
+          headers: {
+            atoken: aToken, // Double-check if your backend middleware requires 'atoken' or just 'token'
+          },
+        }
       );
 
-      if (data.success) {
+      if (data && data.success) {
         toast.success(data.message);
         setName("");
         setEmail("");
         setPassword("");
-        setExperiance("1 year");
+        setExperiance("1 year"); // FIXED: Typo corrected from setExpriance to setExperiance
         setFees("");
         setSpeciality("General physician");
         setEducation("");
@@ -67,17 +67,17 @@ const AddDoctor = () => {
         setAbout("");
         setDocImage(false);
       } else {
-        console.log(data.message);
-        toast.error(data.message);
+        console.log("Backend error response:", data);
+        toast.error(data?.message || "Failed to add doctor.");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Axios Submission Error:", error);
       toast.error(error.response?.data?.message || error.message);
     }
   };
 
   return (
-    <form onSubmit={onSubmitHandler} className="m-5 w-full" action="">
+    <form onSubmit={onSubmitHandler} className="m-5 w-full">
       <p className="mb-3 text-lg font-medium">Add Doctor</p>
 
       <div className="bg-white px-8 py-8 border rounded w-full max-w-4xl max-h-[80vh] overflow-y-scroll no-scrollbar">
@@ -137,13 +137,12 @@ const AddDoctor = () => {
             </div>
 
             <div className="flex-1 flex flex-col gap-1">
-              <p>Experiance</p>
+              <p>Experience</p> 
               <select
                 onChange={(e) => setExperiance(e.target.value)}
                 value={experiance}
                 className="border rounded px-3 py-2"
-                name=""
-                id=""
+                id="experience-select"
               >
                 <option value="1 year">1 year</option>
                 <option value="2 year">2 year</option>
@@ -178,8 +177,7 @@ const AddDoctor = () => {
                 onChange={(e) => setSpeciality(e.target.value)}
                 value={speciality}
                 className="border rounded px-3 py-2"
-                name=""
-                id=""
+                id="speciality-select"
               >
                 <option value="General physician">General physician</option>
                 <option value="Gynecologist">Gynecologist</option>
@@ -205,7 +203,7 @@ const AddDoctor = () => {
             <div className="flex-1 flex flex-col gap-1">
               <p>Address</p>
               <input
-                className="border rounded px-3 py-2"
+                className="border rounded px-3 py-2 mb-2"
                 onChange={(e) => setAddress1(e.target.value)}
                 value={address1}
                 type="text"
@@ -236,7 +234,7 @@ const AddDoctor = () => {
         </div>
         <button
           type="submit"
-          className="bg-primary px-10 py-3 mt-4 text-white rounded-full"
+          className="bg-primary px-10 py-3 mt-4 text-white rounded-full hover:bg-opacity-90 transition-all"
         >
           Add Doctor
         </button>

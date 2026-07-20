@@ -10,8 +10,14 @@
   @apply block
 }
 
-.no-scrollbar::-webkit-scrollbar {
+/* Hide Scrollbar */
+::-webkit-scrollbar {
   display: none;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .no-scrollbar {
